@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Simulation du Mouvement Brownian</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+    <style>
+        :root {
+            --primary-color: #475569;
+            --primary-hover: #EAE7DC;
+            --bg-color: #EAE7DC;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+        }
+
+
+
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 1.5rem;
+            color: var(--text-color);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            margin-top: 9rem; /* Ajoute 2rem d'espace en haut */
+        }
+
+        h2 {
+            color: #2A3132;
+            text-align: center;
+            font-size: 1.875rem;
+            margin-bottom: 2rem;
+        }
+
+        .panels {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 1.5rem;
+        }
+
+        .control-panel {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        label {
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+            input:focus {
+                outline: none;
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #E43D12 0%, #D6536D 50%, #5D001E 100%);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 1.5rem;
+        }
+
+            button:hover {
+                background-color: var(--primary-hover);
+            }
+
+        .results-panel {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: calc(100% - 3rem);
+            min-height: 400px;
+        }
+
+        h3 {
+            color: var(--text-color);
+            margin: 0;
+            font-size: 1.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <div class="panels">
+            <div class="control-panel">
+                <div class="form-group">
+                    <label for="drift">Drift :</label>
+                    <input type="number" id="drift" name="drift" value="0" step="0.1" />
+
+                    <label for="volatility">Ecart Type :</label>
+                    <input type="number" id="volatility" name="volatility" value="1" step="0.1" />
+
+                    <label for="simulations">Nombre de Simulation :</label>
+                    <input type="number" id="simulations" name="simulations" value="10" min="1" />
+
+                    <label for="steps">Nombre de Pas :</label>
+                    <input type="number" id="steps" name="steps" value="100" min="1" />
+
+                    <label for="deltaT">Pas :</label>
+                    <input type="number" id="deltaT" name="deltaT" value="1" step="0.1" />
+                </div>
+                <button id="simulate" onclick="simuler()">Lancer la simulation</button>
+            </div>
+            <div class="results-panel">
+                <h3>Résultats de la simulation</h3>
+                <div class="chart-container">
+                    <canvas id="simulationChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <script>
+        let currentChart = null;
+
+        function simuler() {
+            const params = {
+                drift: parseFloat(document.getElementById("drift").value),
+                volatility: parseFloat(document.getElementById("volatility").value),
+                simulations: parseInt(document.getElementById("simulations").value),
+                steps: parseInt(document.getElementById("steps").value),
+                deltaT: parseFloat(document.getElementById("deltaT").value)
+            };
+
+            const url = `/api/BrownianMotion/Simuler?${new URLSearchParams(params)}`;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error("Erreur lors de la simulation.");
+                    return response.json();
+                })
+                .then(createSimulationChart)
+                .catch(error => {
+                    console.error(error);
+                    alert("Une erreur est survenue lors de la simulation.");
+                });
+        }
+
+        function createSimulationChart(data) {
+            if (currentChart) {
+                currentChart.destroy();
+            }
+
+            const ctx = document.getElementById('simulationChart').getContext('2d');
+            const labels = Array.from({ length: data[0].length }, (_, i) => i);
+
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: data.map((trajectory, index) => ({
+                        label: `Trajectoire ${index + 1}`,
+                        data: trajectory,
+                        borderColor: getRandomColor(),
+                        fill: false,
+                        tension: 0.4
+                    }))
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    plugins: {
+                        zoom: {
+                            zoom: {
+                                wheel: {
+                                    enabled: true
+                                },
+                                pinch: {
+                                    enabled: true
+                                },
+                                mode: 'xy'
+                            },
+                            pan: {
+                                enabled: true,
+                                mode: 'xy'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        function getRandomColor() {
+            const r = Math.floor(Math.random() * 200 + 55);
+            const g = Math.floor(Math.random() * 200 + 55);
+            const b = Math.floor(Math.random() * 200 + 55);
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialisation du graphique vide si nécessaire
+            const ctx = document.getElementById('simulationChart').getContext('2d');
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: []
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        });
+    </script>
+</body>
+</html>

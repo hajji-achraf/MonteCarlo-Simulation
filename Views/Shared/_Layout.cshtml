@@ -1,0 +1,146 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MonteCarlo</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="icon" type="image/x-icon" href="@Url.Content("~/images/favicon.png")">
+    <style>
+        .navbar-custom {
+            background-color: #EAE7DC;
+            padding: 0.8rem 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Logo style */
+        .navbar-brand {
+            color: #1e293b !important;
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+            .navbar-brand:hover {
+                opacity: 0.9;
+            }
+
+        /* Liens de navigation */
+        .nav-link {
+            color: #1e293b !important;
+            font-weight: 500;
+            font-size: 1.1rem;
+            padding: 0.5rem 1rem !important;
+            transition: all 0.2s ease;
+        }
+
+            .nav-link:hover {
+                color: white  !important;
+                background-color: rgba(0, 0, 0, 0.03);
+                border-radius: 6px;
+            }
+
+        /* Menu déroulant */
+        .dropdown-menu {
+            background-color: #EAE7DC;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .dropdown-item {
+            color: #1e293b;
+            padding: 0.7rem 1.2rem;
+            transition: all 0.2s ease;
+        }
+
+            .dropdown-item:hover {
+                background-color: #EAE7DC;
+                color:white ; 
+            }
+
+        /* Bouton toggle mobile */
+        .navbar-toggler {
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            padding: 0.4rem;
+        }
+
+            .navbar-toggler:focus {
+                box-shadow: none;
+                outline: none;
+            }
+
+        /* Responsive */
+        @@media (max-width: 991.98px) {
+            .navbar-collapse
+
+        {
+            background-color: #EAE7DC;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+        }
+
+        .nav-link {
+            padding: 0.6rem 1rem !important;
+        }
+
+        }
+    </style>
+    @await RenderSectionAsync("Head", required: false)
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-custom">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Monte Carlo</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav">
+                       
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Accueil</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Documentation">Documenation</a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="simulationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Simulations
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="simulationDropdown">
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="SimulationDesLois">Lois usuelles</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="BrownianMotion">Mouvement brownien </a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="GeometricBrownianMotion">GeometricBrownianMotion</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="MarchesAléatoires">Marches aléatoires</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="MarkovChain">Chaînes de Markov</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="PricingOptions">Pricing des options européennes </a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Home" asp-action="">Processus de Poisson</a></li>
+                            </ul>
+                        </li>
+                      
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Contact">Contact</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2025 - MonteCarlo - 
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

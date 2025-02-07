@@ -1,0 +1,426 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Simulation Chaînes de Markov Corrigée</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js"></script>
+    <style>
+        :root {
+            --primary-color: #475569;
+            --primary-hover: #1d4ed8;
+            --bg-color: #EAE7DC;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 1.5rem;
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            margin-top: 9rem; /* Ajoute 2rem d'espace en haut */
+        }
+
+        h2, h3 {
+            color: #2A3132;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .panels {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .control-panel, .matrix-panel, .graph-panel {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .graph-panel {
+            grid-column: 1 / -1;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #E43D12 0%, #D6536D 50%, #5D001E 100%);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 1.5rem;
+        }
+
+            button:hover {
+                background-color: #EAE7DC;
+            }
+
+        .matrix-container {
+            margin-top: 1rem;
+            overflow-x: auto;
+        }
+
+        .matrix-row {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .matrix-cell {
+            width: 80px;
+            padding: 0.5rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+        }
+
+        .chart-container {
+            height: 400px;
+            margin-top: 2rem;
+        }
+
+        .trajectory-display {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 0.5rem;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+
+        <div class="panels">
+            <div class="control-panel">
+                <div class="form-group">
+                    <label>Mode de simulation :</label>
+                    <div style="display: flex; gap: 1rem; margin: 0.5rem 0;">
+                        <label>
+                            <input type="radio" name="simulationMode" value="sync" checked> Synchrone
+                        </label>
+                        <label>
+                            <input type="radio" name="simulationMode" value="async"> Asynchrone
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="numStates">Nombre d'états :</label>
+                    <input type="number" id="numStates" value="3" min="2" max="10">
+                </div>
+
+                <div id="statesContainer"></div>
+
+                <div class="form-group">
+                    <label for="initialState">État initial :</label>
+                    <select id="initialState"></select>
+                </div>
+
+                <div class="form-group">
+                    <label for="numSteps">Nombre d'étapes :</label>
+                    <input type="number" id="numSteps" value="50" min="1" max="1000">
+                </div>
+
+                <button onclick="generateMatrix()">Générer la matrice</button>
+            </div>
+
+            <div class="matrix-panel">
+                <h3>Matrice de transition</h3>
+                <div id="matrixContainer"></div>
+                <div id="error" style="color: red; margin-top: 0.5rem;"></div>
+                <button onclick="simulateTrajectory()" style="margin-top: 1rem;">Simuler</button>
+            </div>
+
+            <div class="graph-panel">
+                <h3>Visualisation de la trajectoire</h3>
+                <div class="chart-container">
+                    <canvas id="trajChart"></canvas>
+                </div>
+                <div class="trajectory-display" id="trajectoryDisplay"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let trajChart = null;
+        let stateNames = [];
+
+        function updateStateInputs() {
+            const numStates = parseInt(document.getElementById('numStates').value);
+            const container = document.getElementById('statesContainer');
+            container.innerHTML = '';
+
+            for (let i = 0; i < numStates; i++) {
+                const div = document.createElement('div');
+                div.className = 'form-group';
+                div.innerHTML = `
+                    <input type="text" class="state-name"
+                           placeholder="État ${i + 1}"
+                           value="${stateNames[i] || `État ${i + 1}`}">
+                `;
+                container.appendChild(div);
+            }
+            generateMatrix();
+        }
+
+        function getStateNames() {
+            return Array.from(document.querySelectorAll('.state-name'))
+                .map(input => input.value.trim() || input.placeholder);
+        }
+
+        function generateMatrix() {
+            stateNames = getStateNames();
+            const container = document.getElementById('matrixContainer');
+            container.innerHTML = '';
+
+            // Header row
+            const header = document.createElement('div');
+            header.className = 'matrix-row';
+            header.innerHTML = '<div class="matrix-cell"></div>' +
+                stateNames.map(name => `<div class="matrix-cell">${name}</div>`).join('');
+            container.appendChild(header);
+
+            // Matrix rows
+            for (let i = 0; i < stateNames.length; i++) {
+                const row = document.createElement('div');
+                row.className = 'matrix-row';
+
+                const label = document.createElement('div');
+                label.className = 'matrix-cell';
+                label.textContent = stateNames[i];
+                row.appendChild(label);
+
+                for (let j = 0; j < stateNames.length; j++) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.className = 'matrix-cell';
+                    input.min = 0;
+                    input.max = 1;
+                    input.step = 0.1;
+                    input.value = i === j ? 0.5 : 0.5 / (stateNames.length - 1);
+                    row.appendChild(input);
+                }
+                container.appendChild(row);
+            }
+
+            // Update initial state select
+            const initialSelect = document.getElementById('initialState');
+            initialSelect.innerHTML = stateNames
+                .map((name, i) => `<option value="${i}">${name}</option>`)
+                .join('');
+        }
+
+        function getTransitionMatrix() {
+            const rows = document.querySelectorAll('.matrix-row');
+            const matrix = [];
+
+            for (let i = 1; i < rows.length; i++) {
+                const cells = rows[i].querySelectorAll('input');
+                matrix.push(Array.from(cells).map(cell => parseFloat(cell.value)));
+            }
+
+            return matrix;
+        }
+
+        function validateMatrix() {
+            const matrix = getTransitionMatrix();
+
+            for (let i = 0; i < matrix.length; i++) {
+                const sum = matrix[i].reduce((a, b) => a + b, 0);
+                if (Math.abs(sum - 1) > 0.001) {
+                    document.getElementById('error').textContent =
+                        `Erreur: La somme de la ligne ${i + 1} doit être 1 (actuel: ${sum.toFixed(3)})`;
+                    return false;
+                }
+            }
+
+            document.getElementById('error').textContent = '';
+            return true;
+        }
+
+        function getNextState(matrix, currentState) {
+            const rand = Math.random();
+            let sum = 0;
+
+            for (let i = 0; i < matrix[currentState].length; i++) {
+                sum += matrix[currentState][i];
+                if (rand <= sum) return i;
+            }
+
+            return currentState;
+        }
+
+        function simulateSync(matrix, initialState, steps) {
+            const trajectory = [initialState];
+            let currentState = initialState;
+
+            for (let i = 0; i < steps - 1; i++) {
+                currentState = getNextState(matrix, currentState);
+                trajectory.push(currentState);
+            }
+
+            return trajectory;
+        }
+
+        function simulateAsync(matrix, initialState, maxSteps) {
+            const trajectory = [];
+            let currentState = initialState;
+            let remainingSteps = maxSteps;
+
+            while (remainingSteps > 0) {
+                const stayProb = matrix[currentState][currentState];
+                const nextState = getNextState(matrix, currentState);
+
+                if (currentState === nextState) {
+                    trajectory.push(currentState);
+                    remainingSteps--;
+                } else {
+                    trajectory.push(currentState);
+                    currentState = nextState;
+                    remainingSteps--;
+                }
+            }
+
+            return compressTrajectory(trajectory);
+        }
+
+        function compressTrajectory(trajectory) {
+            const compressed = [];
+            let currentState = trajectory[0];
+            let duration = 1;
+
+            for (let i = 1; i < trajectory.length; i++) {
+                if (trajectory[i] === currentState) {
+                    duration++;
+                } else {
+                    compressed.push({state: currentState, duration: duration});
+                    currentState = trajectory[i];
+                    duration = 1;
+                }
+            }
+            compressed.push({state: currentState, duration: duration});
+
+            return compressed;
+        }
+
+        function displayTrajectory(result, isAsync) {
+            const display = document.getElementById('trajectoryDisplay');
+
+            if (isAsync) {
+                // Mode asynchrone : afficher les états avec leurs durées
+                const formatted = result
+                    .map(({state, duration}) => `${stateNames[state]}(${duration})`)
+                    .join(' → ');
+                display.textContent = formatted;
+            } else {
+                // Mode synchrone : afficher tous les états
+                const formatted = result
+                    .map(state => stateNames[state])
+                    .join(' → ');
+                display.textContent = formatted;
+            }
+        }
+
+        function updateTrajChart(data, isAsync) {
+            const ctx = document.getElementById('trajChart').getContext('2d');
+
+            let plotData;
+            if (isAsync) {
+                // Convertir les données compressées en série temporelle
+                plotData = [];
+                data.forEach(({state, duration}) => {
+                    for (let i = 0; i < duration; i++) {
+                        plotData.push(state);
+                    }
+                });
+            } else {
+                plotData = data;
+            }
+
+            const labels = plotData.map((_, i) => i);
+
+            if (trajChart) trajChart.destroy();
+
+            trajChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'État',
+                        data: plotData,
+                        borderColor: '#1e293b',
+                        stepped: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            ticks: {
+                                callback: value => stateNames[value],
+                                stepSize: 1
+                            },
+                            title: {
+                                display: true,
+                                text: 'États'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Étapes'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function simulateTrajectory() {
+            if (!validateMatrix()) return;
+
+            const matrix = getTransitionMatrix();
+            const steps = parseInt(document.getElementById('numSteps').value);
+            const initialState = parseInt(document.getElementById('initialState').value);
+            const isAsync = document.querySelector('input[name="simulationMode"]:checked').value === 'async';
+
+            const trajectory = isAsync
+                ? simulateAsync(matrix, initialState, steps)
+                : simulateSync(matrix, initialState, steps);
+
+            displayTrajectory(trajectory, isAsync);
+            updateTrajChart(trajectory, isAsync);
+        }
+
+        // Initialize
+        document.getElementById('numStates').addEventListener('change', updateStateInputs);
+        updateStateInputs();
+    </script>
+</body>
+</html>

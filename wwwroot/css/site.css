@@ -1,0 +1,79 @@
+html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+.btn:focus,
+.btn:active:focus,
+.btn-link.nav-link:focus,
+.form-control:focus,
+.form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem #fff, 0 0 0 0.25rem #00bcd4; /* Couleur d'accentuation au focus */
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 60px;
+    background-color: #f4f4f4; /* Couleur de fond pour le site */
+}
+
+.navbar {
+    background-color: #1c1c1e; /* Couleur de fond sombre pour la navbar */
+    border-bottom: 2px solid #00bcd4; /* Ligne de séparation turquoise */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); /* Ombre pour donner du relief */
+}
+
+    .navbar .nav-link {
+        font-weight: bold; /* Texte en gras */
+        font-size: 18px; /* Taille du texte */
+        color: #ffffff; /* Couleur blanche par défaut pour les liens */
+        text-transform: uppercase; /* Transforme le texte en majuscules */
+        letter-spacing: 0.5px; /* Espacement entre les lettres */
+        transition: color 0.3s ease, transform 0.2s; /* Transition fluide */
+    }
+
+        .navbar .nav-link:hover {
+            color: #00bcd4; /* Couleur turquoise au survol */
+            transform: scale(1.1); /* Effet de zoom au survol */
+        }
+
+.navbar-brand {
+    font-size: 24px; /* Taille du texte pour la marque */
+    font-weight: bolder; /* Texte plus gras */
+    color: #ffffff; /* Couleur blanche pour la marque */
+    text-transform: uppercase; /* Transforme en majuscules */
+}
+
+    .navbar-brand:hover {
+        color: #ff9800; /* Couleur orange vif au survol */
+        text-shadow: 1px 1px 5px rgba(255, 152, 0, 0.7); /* Effet lumineux sur le texte */
+    }
+
+.navbar-toggler {
+    border: 1px solid #00bcd4; /* Bordure turquoise pour le bouton hamburger */
+}
+
+.navbar-toggler-icon {
+    background-color: #00bcd4; /* Icône du menu en turquoise */
+}
+
+.navbar-collapse {
+    justify-content: flex-end; /* Positionne les liens à droite */
+}
+
+footer {
+    background-color: #1c1c1e; /* Fond sombre pour le pied de page */
+    color: #ffffff; /* Texte blanc */
+    padding: 10px 0;
+    text-align: center;
+    border-top: 2px solid #00bcd4; /* Ligne de séparation turquoise */
+}

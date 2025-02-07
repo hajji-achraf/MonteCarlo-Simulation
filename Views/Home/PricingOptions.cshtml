@@ -1,0 +1,396 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Simulation de Pricing d'Options</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #475569;
+            --primary-hover: #1d4ed8;
+            --bg-color: #EAE7DC;
+            --card-bg: #ffffff;
+            --text-color: #2A3132;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 1.5rem;
+            color: var(--text-color);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            margin-top: 9rem; /* Ajoute 2rem d'espace en haut */
+        }
+
+        h2 {
+            color: #2A3132;
+            text-align: center;
+            font-size: 1.875rem;
+            margin-bottom: 2rem;
+        }
+
+        .panels {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 1.5rem;
+        }
+
+        .control-panel {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        label {
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+            input:focus, select:focus {
+                outline: none;
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #E43D12 0%, #D6536D 50%, #5D001E 100%);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 1.5rem;
+        }
+
+            button:hover {
+                background-color: #EAE7DC;
+            }
+
+        .results-panel {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .results-text {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .result-box {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 0.5rem;
+        }
+
+            .result-box h4 {
+                margin: 0 0 0.5rem 0;
+                color: #64748b;
+            }
+
+            .result-box p {
+                margin: 0;
+                font-size: 1.5rem;
+                font-weight: 600;
+                color: var(--primary-color);
+            }
+
+        .chart-container {
+            width: 100%;
+            height: 500px;
+            padding: 1rem;
+            background: #fff;
+            border-radius: 0.5rem;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <div class="panels">
+            <div class="control-panel">
+                <div class="form-group">
+                    <label for="optionType">Type d'option :</label>
+                    <select id="optionType">
+                        <option value="true">Call</option>
+                        <option value="false">Put</option>
+                    </select>
+
+                    <label for="S0">Prix Initial (S0) :</label>
+                    <input type="number" id="S0" value="100" step="0.01" min="0" />
+
+                    <label for="K">Prix d'exercice (K) :</label>
+                    <input type="number" id="K" value="100" step="0.01" min="0" />
+
+                    <label for="T">Maturité (T) :</label>
+                    <input type="number" id="T" value="1" step="0.01" min="0" />
+
+                    <label for="r">Taux d'intérêt (nombre décimal) :</label>
+                    <input type="number" id="r" value="0.05" step="0.001" />
+
+                    <label for="sigma">Volatilité (σ) :</label>
+                    <input type="number" id="sigma" value="0.2" step="0.01" min="0" />
+
+                    <label for="N">Nombre de simulations :</label>
+                    <input type="number" id="N" value="1000" min="1" />
+
+                    
+                </div>
+                <button onclick="calculatePrices()">Calculer</button>
+            </div>
+            <div class="results-panel">
+                <div class="results-text">
+                    <div class="result-box">
+                        <h4>Prix Black-Scholes</h4>
+                        <p id="blackScholesResult">-</p>
+                    </div>
+                    <div class="result-box">
+                        <h4>Prix Monte Carlo</h4>
+                        <p id="monteCarloResult">-</p>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="simulationChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentChart = null;
+
+        function normalRandom() {
+            let u = 0, v = 0;
+            while(u === 0) u = Math.random();
+            while(v === 0) v = Math.random();
+            return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+        }
+
+        function getRandomBlueColor() {
+            const blue = Math.floor(Math.random() * 155) + 100; // 100-255
+            return `rgba(100, 149, ${blue}, 0.3)`;
+        }
+
+        function generatePath(S0, r, sigma, T, steps = 1000){
+            const dt = T / steps;
+            const path = [S0];
+            let currentPrice = S0;
+
+            for (let i = 1; i <= steps; i++) {
+                const dW = normalRandom() * Math.sqrt(dt);
+                currentPrice = currentPrice * Math.exp((r - 0.5 * sigma * sigma) * dt + sigma * dW);
+                path.push(currentPrice);
+            }
+
+            return path;
+        }
+
+        function calculateBlackScholes(S0, K, T, r, sigma, isCall) {
+            const d1 = (Math.log(S0 / K) + (r + sigma * sigma / 2) * T) / (sigma * Math.sqrt(T));
+            const d2 = d1 - sigma * Math.sqrt(T);
+
+            if (isCall) {
+                return S0 * normalCDF(d1) - K * Math.exp(-r * T) * normalCDF(d2);
+            } else {
+                return K * Math.exp(-r * T) * normalCDF(-d2) - S0 * normalCDF(-d1);
+            }
+        }
+
+        function normalCDF(x) {
+            const t = 1 / (1 + 0.2316419 * Math.abs(x));
+            const d = 0.3989423 * Math.exp(-x * x / 2);
+            const probability = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+            if (x > 0) {
+                return 1 - probability;
+            }
+            return probability;
+        }
+
+        function calculatePrices() {
+            const data = {
+                S0: parseFloat(document.getElementById("S0").value),
+                K: parseFloat(document.getElementById("K").value),
+                T: parseFloat(document.getElementById("T").value),
+                r: parseFloat(document.getElementById("r").value),
+                sigma: parseFloat(document.getElementById("sigma").value),
+                N: parseInt(document.getElementById("N").value),
+                isCall: document.getElementById("optionType").value === "true"
+            };
+
+            // Calcul Black-Scholes
+            const bsPrice = calculateBlackScholes(
+                data.S0,
+                data.K,
+                data.T,
+                data.r,
+                data.sigma,
+                data.isCall
+            );
+
+            // Calcul Monte Carlo
+            const steps = 1000 ;
+            const paths = [];
+            let sumPayoffs = 0;
+
+            for (let i = 0; i < data.N; i++) {
+                const path = generatePath(data.S0, data.r, data.sigma, data.T, steps);
+                const finalPrice = path[path.length - 1];
+                const payoff = data.isCall ?
+                    Math.max(finalPrice - data.K, 0) :
+                    Math.max(data.K - finalPrice, 0);
+                sumPayoffs += payoff;
+
+                if (i < 30) { // Garder seulement 30 chemins pour l'affichage
+                    paths.push(path);
+                }
+            }
+
+            const mcPrice = Math.exp(-data.r * data.T) * (sumPayoffs / data.N);
+
+            // Mise à jour des résultats
+            document.getElementById("blackScholesResult").textContent = bsPrice.toFixed(4);
+            document.getElementById("monteCarloResult").textContent = mcPrice.toFixed(4);
+
+            // Calcul de la trajectoire moyenne
+            const averagePath = Array(steps + 1).fill(0);
+            paths.forEach(path => {
+                path.forEach((value, index) => {
+                    averagePath[index] += value;
+                });
+            });
+            averagePath.forEach((sum, index) => {
+                averagePath[index] = sum / paths.length;
+            });
+
+            updateChart(paths, averagePath, steps, data.T);
+        }
+
+        function updateChart(paths, averagePath, steps, T) {
+            if (currentChart) {
+                currentChart.destroy();
+            }
+
+            const ctx = document.getElementById('simulationChart').getContext('2d');
+            const timeSteps = Array.from({ length: steps + 1 }, (_, i) => (i * T / steps).toFixed(2));
+
+            const datasets = paths.map((path, index) => ({
+                label: index === 0 ? 'Trajectoires individuelles' : undefined,
+                data: path,
+                borderColor: getRandomBlueColor(),
+                borderWidth: 1,
+                fill: false,
+                pointRadius: 0,
+                tension: 0.4
+            }));
+
+            datasets.push({
+                label: 'Trajectoire moyenne',
+                data: averagePath,
+                borderColor: 'rgba(255, 0, 0, 1)',
+                borderWidth: 2,
+                fill: false,
+                pointRadius: 0,
+                tension: 0.4
+            });
+
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timeSteps,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 1000
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                filter: function(item) {
+                                    return item.label !== undefined;
+                                },
+                                padding: 20,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Prix du sous-jacent',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Temps (années)',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', () => {
+            calculatePrices();
+        });
+    </script>
+</body>
+</html>

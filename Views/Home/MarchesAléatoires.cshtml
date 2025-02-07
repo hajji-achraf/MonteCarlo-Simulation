@@ -1,0 +1,290 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Simulation Marches Aléatoires </title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+    <style>
+        :root {
+            --primary-color: #475569;
+            --primary-hover: #1d4ed8;
+            --bg-color: #EAE7DC;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 1.5rem;
+            color: var(--text-color);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+   
+            margin-top: 11rem; /* Ajoute 2rem d'espace en haut */
+        }
+
+        h2 {
+            color: #1e293b;
+            text-align: center;
+            font-size: 1.875rem;
+            margin-bottom: 2rem;
+        }
+
+        .panels {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 1.5rem;
+        }
+
+        .control-panel {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        label {
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+            input:focus {
+                outline: none;
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #E43D12 0%, #D6536D 50%, #5D001E 100%);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 1.5rem;
+        }
+
+            button:hover {
+                background-color: #EAE7DC;
+            }
+
+        .results-panel {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: calc(100% - 3rem);
+            min-height: 400px;
+        }
+
+        h3 {
+            color: var(--text-color);
+            margin: 0;
+            font-size: 1.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+       
+        <div class="panels">
+            <div class="control-panel">
+                <div class="form-group">
+                    <label for="steps">Nombre de Pas :</label>
+                    <input type="number" id="steps" value="1000" />
+
+                    <label for="steps">Nombre de Simulation :</label>
+                    <input type="number" id="Simulation" value="1" min="1" />
+
+                </div>
+                <button id="simulate" onclick="simuler()">Lancer la simulation</button>
+            </div>
+            <div class="results-panel">
+                <h3>Résultats de la simulation</h3>
+                <div class="chart-container">
+                    <canvas id="simulationChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ajoutez le code JavaScript ici, après les autres scripts -->
+    <script>
+        let simulationChart = null;
+
+        function initializeChart() {
+            // Nettoyer complètement le canvas existant
+            const chartContainer = document.querySelector('.chart-container');
+            chartContainer.innerHTML = '<canvas id="simulationChart"></canvas>';
+
+            const ctx = document.getElementById('simulationChart').getContext('2d');
+
+            simulationChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: []
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    plugins: {
+                        zoom: {
+                            pan: {
+                                enabled: true,
+                                mode: 'xy'
+                            },
+                            zoom: {
+                                wheel: {
+                                    enabled: true
+                                },
+                                pinch: {
+                                    enabled: true
+                                },
+                                mode: 'xy'
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'center',
+                            grid: {
+                                display: true,
+                                color: '#d1d1d1',
+                                lineWidth: 1,
+                                drawBorder: true,
+                                drawOnChartArea: true
+                            },
+                            ticks: {
+                                stepSize: 1
+                            }
+                        },
+                        y: {
+                            type: 'linear',
+                            position: 'center',
+                            grid: {
+                                display: true,
+                                color: '#d1d1d1',
+                                lineWidth: 1,
+                                drawBorder: true,
+                                drawOnChartArea: true
+                            },
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+
+            return simulationChart;
+        }
+
+            function getRandomColor() {
+            return `hsl(${Math.random() * 360}deg, 70%, 50%)`; // Couleurs plus vives
+        }
+
+        function convertPointsToChartData(points) {
+            return points.map(point => ({
+                x: point.x,
+                y: point.y
+            }));
+        }
+
+        async function simuler() {
+            try {
+                const steps = parseInt(document.getElementById('steps').value);
+                const numSimulations = parseInt(document.getElementById('Simulation').value);
+
+                // S'assurer que les valeurs sont valides
+                if (isNaN(steps) || isNaN(numSimulations) || steps < 1 || numSimulations < 1) {
+                    alert("Veuillez entrer des valeurs valides (supérieures à 0)");
+                    return;
+                }
+
+                // Réinitialiser complètement le graphique
+                if (simulationChart) {
+                    simulationChart.destroy();
+                }
+                simulationChart = initializeChart();
+
+                // Vider les données existantes
+                simulationChart.data.datasets = [];
+
+                for (let i = 0; i < numSimulations; i++) {
+                    const response = await fetch('/MarchesAleatoires/GenerateTrajectory', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ steps: steps })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`Erreur HTTP: ${response.status}`);
+                    }
+
+                    const points = await response.json();
+                    const chartData = convertPointsToChartData(points);
+                    const color = getRandomColor();
+
+                    simulationChart.data.datasets.push({
+                        label: `Simulation ${i + 1}`,
+                        data: chartData,
+                        backgroundColor: color,
+                        borderColor: color,
+                        showLine: true,
+                        pointRadius: 0,
+                        borderWidth: 2,
+                        fill: false,
+                        steppedLine: 'before'
+                    });
+                }
+
+                simulationChart.update();
+            } catch (error) {
+                console.error("Erreur lors de la simulation:", error);
+                alert("Une erreur est survenue lors de la simulation");
+            }
+        }
+
+        // Initialiser le graphique au chargement de la page
+        document.addEventListener('DOMContentLoaded', () => {
+            simulationChart = initializeChart();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Documentation sur la méthode de Monte Carlo">
+    <title>Monte Carlo Documentation</title>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-color: #EAE7DC;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 1.5rem;
+            color: var(--text-color);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            margin-top: 6rem; /* Ajoute 2rem d'espace en haut */
+        }
+
+        h2 {
+            color: #1e293b;
+            text-align: center;
+            font-size: 1.875rem;
+            margin-bottom: 2rem;
+        }
+
+        .panels {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 1.5rem;
+        }
+
+        .control-panel {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        label {
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+            input:focus {
+                outline: none;
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            background-color: midnightblue;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 1rem;
+        }
+
+            button:hover {
+                background-color: var(--primary-hover);
+            }
+
+        .results-panel {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: calc(100% - 3rem);
+            min-height: 400px;
+        }
+
+        h3 {
+            color: var(--text-color);
+            margin: 0;
+            font-size: 1.25rem;
+        }
+
+        .section {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-container">
+        
+        <main>
+            <section class="section">
+                <h2>Loi Forte des Grands Nombres (LFGN)</h2>
+                <div class="results-panel">
+                    <p>
+                        Soit \( X_n \) une suite de variables aléatoires <i>i.i.d.</i> intégrables, i.e., \( \mathbb{E}[|X_1|] < +\infty \), alors :
+                    </p>
+                    <p class="formula">
+                        \[
+                        \lim_{n \to \infty} \frac{1}{n} \sum_{k=1}^n X_k = \mathbb{E}[X_1] \quad \text{p.s. et dans } L^1.
+                        \]
+                    </p>
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Simulation des Lois de Probabilité</h2>
+                <div class="results-panel">
+                    <h3>Loi uniforme</h3>
+                    \[ X \sim U([a,b]), \quad X = a + (b-a) U \]
+
+                    <h3>Loi exponentielle</h3>
+                    \[ X = -\frac{1}{\lambda} \ln U \]
+
+                    <h3>Loi de Cauchy</h3>
+                    \[ X = c \tan(\pi (U - 0.5)) \]
+
+                    <h3>Loi de Bernoulli</h3>
+                    \[ X = \mathbb{1}_{U < p} \]
+
+                    <h3>Loi normale (Box-Muller)</h3>
+                    \[ X = \sqrt{-2 \ln U_1} \cos(2\pi U_2) \]
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Mouvements Browniens</h2>
+                <div class="results-panel">
+                    <h3>Mouvement Brownien avec Dérive</h3>
+                    \[ dX_t = \mu dt + \sigma dW_t \]
+                    \[ X_{t+\Delta t} = X_t + \mu \Delta t + \sigma \sqrt{\Delta t} Z_t \]
+
+                    <h3>Mouvement Brownien Géométrique (GBM)</h3>
+                    \[ dS_t = \mu S_t dt + \sigma S_t dW_t \]
+                    \[ S_{t+\Delta t} = S_t \times e^{(\mu - \frac{1}{2} \sigma^2) \Delta t + \sigma \sqrt{\Delta t} Z_t} \]
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Pricing des Options</h2>
+                <div class="results-panel">
+                    <h3>Formule de Black-Scholes</h3>
+                    \[ C(S,t) = S\Phi(d_1) - K e^{-r(T-t)} \Phi(d_2) \]
+                    avec
+                    \[ d_1 = \frac{\ln(S/K) + (r + \frac{\sigma^2}{2})(T-t)}{\sigma \sqrt{T-t}} \]
+                    \[ d_2 = d_1 - \sigma \sqrt{T-t} \]
+
+                    <h3>Méthode Monte Carlo</h3>
+                    \[ C \approx e^{-rT} \frac{1}{N} \sum_{i=1}^{N} \max(S_T^{(i)} - K, 0) \]
+                </div>
+            </section>
+
+            <section class="section">
+                <h2>Simulation de Chaînes de Markov</h2>
+                <div class="results-panel">
+                    <h3>Simulation Synchrone</h3>
+                    \[ X_{t+1} = \begin{cases}
+                    0, & \text{si } U < p_{X_t,0} \\
+                    1, & \text{si } p_{X_t,0} \leq U < p_{X_t,0} + p_{X_t,1} \\
+                    \vdots \\
+                    n, & \text{sinon}
+                    \end{cases} \]
+
+                    <h3>Simulation Asynchrone</h3>
+                    \[ T = \left\lceil \frac{\ln(1 - U)}{\ln(1 - p)} \right\rceil \]
+                </div>
+            </section>
+        </main>
+        <footer class="text-center">
+            <p>&copy; 2025 - Achraf</p>
+        </footer>
+    </div>
+</body>
+</html>

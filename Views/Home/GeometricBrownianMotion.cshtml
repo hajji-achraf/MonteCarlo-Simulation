@@ -1,0 +1,298 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Simulation du Mouvement Brownien Géométrique</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+    <style>
+        :root {
+            --primary-color: #475569;
+            --primary-hover: #EAE7DC;
+            --bg-color: #EAE7DC;
+            --card-bg: #ffffff;
+            --text-color: #1e293b;
+        }
+
+
+
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 1.5rem;
+            color: var(--text-color);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            margin-top: 9rem; /* Ajoute 2rem d'espace en haut */
+        }
+
+        h2 {
+            color: #2A3132;
+            text-align: center;
+            font-size: 1.875rem;
+            margin-bottom: 2rem;
+        }
+
+        .panels {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 1.5rem;
+        }
+
+        .control-panel {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        label {
+            font-weight: 500;
+            color: var(--text-color);
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+            input:focus {
+                outline: none;
+                border-color: var(--primary-color);
+                box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #E43D12 0%, #D6536D 50%, #5D001E 100%);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 1.5rem;
+        }
+
+            button:hover {
+                background-color: var(--primary-hover);
+            }
+
+        .results-panel {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: calc(100% - 3rem);
+            min-height: 400px;
+        }
+
+        h3 {
+            color: var(--text-color);
+            margin: 0;
+            font-size: 1.25rem;
+        }
+    </style>
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <div class="panels">
+            <div class="control-panel">
+                <div class="form-group">
+                    <label for="drift">Drift (μ) :</label>
+                    <input type="number" id="drift" name="drift" value="0.05" step="0.01" /> <!-- 5% de drift annuel -->
+
+                    <label for="volatility">Volatilité (σ) :</label>
+                    <input type="number" id="volatility" name="volatility" value="0.2" step="0.01" />
+
+                    <label for="simulations">Nombre de simulations :</label>
+                    <input type="number" id="simulations" name="simulations" value="10" min="1" max="50" />
+
+                    <label for="steps">Nombre de pas :</label>
+                    <input type="number" id="steps" name="steps" value="100" min="1" max="1000" />
+
+                    <label for="deltaT">Pas de temps (Δt) :</label>
+                    <input type="number" id="deltaT" name="deltaT" value="0.01" step="0.001" /> <!-- Pas de temps plus petit -->
+
+                    <label for="initialPrice">Valeur initiale (S₀) :</label>
+                    <input type="number" id="initialPrice" name="initialPrice" value="100" step="1" /> <!-- Prix initial -->
+                </div>
+                <button id="simulate" onclick="simuler()">Lancer la simulation</button>
+            </div>
+            <div class="results-panel">
+                <h3>Résultats de la simulation</h3>
+                <div class="chart-container">
+                    <canvas id="simulationChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentChart = null;
+
+        function simuler() {
+            const params = {
+                drift: parseFloat(document.getElementById("drift").value),
+                volatility: parseFloat(document.getElementById("volatility").value),
+                simulations: parseInt(document.getElementById("simulations").value),
+                steps: parseInt(document.getElementById("steps").value),
+                deltaT: parseFloat(document.getElementById("deltaT").value),
+                initialPrice: parseFloat(document.getElementById("initialPrice").value)
+            };
+
+            const url = `/api/GeometricBrownianMotion/Simuler?${new URLSearchParams(params)}`;
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) throw new Error("Erreur lors de la simulation");
+                    return response.json();
+                })
+                .then(createSimulationChart)
+                .catch(error => {
+                    console.error(error);
+                    alert("Une erreur est survenue lors de la simulation");
+                });
+        }
+
+        function createSimulationChart(data) {
+            if (currentChart) {
+                currentChart.destroy();
+            }
+
+            const ctx = document.getElementById('simulationChart').getContext('2d');
+            const timePoints = Array.from({ length: data[0].length }, (_, i) => i);
+
+            const colors = generateColorPalette(data.length);
+
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timePoints,
+                    datasets: data.map((trajectory, index) => ({
+                        label: `Trajectoire ${index + 1}`,
+                        data: trajectory,
+                        borderColor: colors[index],
+                        backgroundColor: colors[index],
+                        fill: false,
+                        tension: 0.4,
+                        borderWidth: 2
+                    }))
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    },
+                    plugins: {
+                        zoom: {
+                            zoom: {
+                                wheel: {
+                                    enabled: true
+                                },
+                                pinch: {
+                                    enabled: true
+                                },
+                                mode: 'xy'
+                            },
+                            pan: {
+                                enabled: true,
+                                mode: 'xy'
+                            }
+                        },
+                        legend: {
+                            position: 'right'
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                            titleColor: '#1e293b',
+                            bodyColor: '#1e293b',
+                            borderColor: '#e2e8f0',
+                            borderWidth: 1,
+                            padding: 10,
+                            displayColors: true,
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.dataset.label}: ${context.parsed.y.toFixed(2)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Pas de temps'
+                            },
+                            grid: {
+                                color: '#e2e8f0'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Valeur'
+                            },
+                            grid: {
+                                color: '#e2e8f0'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function generateColorPalette(count) {
+            const colors = [];
+            for (let i = 0; i < count; i++) {
+                const hue = (i * 360 / count) % 360;
+                colors.push(`hsl(${hue}, 70%, 50%)`);
+            }
+            return colors;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const ctx = document.getElementById('simulationChart').getContext('2d');
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: []
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        });
+    </script>
+</body>
+</html>

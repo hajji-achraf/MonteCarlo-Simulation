@@ -1,0 +1,435 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulation Des Lois</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
+    <style>
+        :root {
+            --primary: #475569;
+            --secondary: #475569;
+            --accent: #3730a3;
+            --background: #EAE7DC;
+            --card: #ffffff;
+            --text: #1e293b;
+            --border: #e2e8f0;
+
+            --primary-hover: #EAE7DC;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: #EAE7DC;
+            color: var(--text);
+            line-height: 1.5;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            margin-top: 9rem; /* Ajoute 2rem d'espace en haut */
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+
+
+        h2 {
+            color: #2A3132;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .panels {
+            display: grid;
+            grid-template-columns: minmax(300px, 1fr) 2fr;
+            gap: 2rem;
+            animation: slideUp 0.5s ease-out;
+        }
+
+
+
+        .panel {
+            background: var(--card);
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            color: var(--text);
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        select, input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            transition: all 0.2s;
+
+        }
+
+            select:focus, input:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #E43D12 0%, #D6536D 50%, #5D001E 100%);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+            button:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            }
+
+            button:disabled {
+                opacity: 0.7;
+                cursor: not-allowed;
+            }
+
+        .results-container {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .results-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .result-item {
+            background: var(--background);
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            text-align: center;
+            font-family: monospace;
+            font-size: 0.875rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 500px;
+            width: 100%;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+
+            .loading::after {
+                content: '';
+                display: block;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                border: 4px solid var(--border);
+                border-top-color: var(--primary);
+                animation: spin 1s linear infinite;
+            }
+
+
+
+        .error-message {
+            color: var(--error);
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            background: rgba(239, 68, 68, 0.1);
+            margin-top: 1rem;
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+
+        <div class="panels">
+            <div class="panel">
+                <div class="form-group">
+                    <label for="loi">Choisissez une loi</label>
+                    <select id="loi" onchange="handleLawChange()">
+                        <option value="Exponentielle">Loi Exponentielle</option>
+                        <option value="Uniforme">Loi Uniforme</option>
+                        <option value="Cauchy">Loi de Cauchy</option>
+                        <option value="Bernoulli">Loi de Bernoulli</option>
+                        <option value="Normale">Loi Normale</option>
+                    </select>
+                </div>
+                <div id="parameters"></div>
+                <button id="simulateBtn" onclick="handleSimulation()">
+                    Lancer la simulation
+                </button>
+                <div class="error-message" id="errorMessage"></div>
+            </div>
+
+            <div class="panel">
+                <div class="results-container">
+                    <h5>Résultats de la simulation</h5>
+                    <div class="results-list" id="resultsList"></div>
+                    <div class="chart-container">
+                        <div class="loading" id="loading"></div>
+                        <canvas id="simulationChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+                let chartInstance = null;
+        const parameterConfig = {
+            Uniforme: [
+                { id: 'a', label: 'La valeur de a', value: 0, step: 0.1 },
+                { id: 'b', label: 'La valeur de b', value: 1, step: 0.1 }
+            ],
+            Exponentielle: [
+                { id: 'lambda', label: 'λ (lambda)', value: 1, step: 0.1, min: 0.1 }
+            ],
+            Cauchy: [
+                { id: 'c', label: 'Paramètre d\'échelle c', value: 1, step: 0.1 },
+                { id: 'location', label: 'Paramètre de position', value: 0, step: 0.1 }
+            ],
+            Bernoulli: [
+                { id: 'p', label: 'p (probabilité)', value: 0.5, step: 0.01, min: 0, max: 1 }
+            ],
+            Normale: [
+                { id: 'mu', label: 'μ (mu)', value: 0, step: 0.1 },
+                { id: 'sigma', label: 'σ (sigma)', value: 1, step: 0.1, min: 0.1 }
+            ]
+        };
+
+        // Gestionnaire des distributions
+        const distributionHandlers = {
+            Cauchy: (data) => {
+                const q1 = getPercentile(data, 0.25);
+                const q3 = getPercentile(data, 0.75);
+                const iqr = q3 - q1;
+                const lowerBound = q1 - 1.5 * iqr;
+                const upperBound = q3 + 1.5 * iqr;
+                return data.filter(x => x >= lowerBound && x <= upperBound);
+            },
+            default: (data) => data
+        };
+
+        // Fonction utilitaire pour calculer les percentiles
+        function getPercentile(data, percentile) {
+            const sorted = [...data].sort((a, b) => a - b);
+            const index = Math.floor(percentile * sorted.length);
+            return sorted[index];
+        }
+
+        function handleLawChange() {
+            const law = document.getElementById('loi').value;
+            const parameters = parameterConfig[law];
+
+            const parametersHtml = parameters.map(param => `
+                <div class="form-group">
+                    <label for="${param.id}">${param.label} :</label>
+                    <input type="number"
+                        id="${param.id}"
+                        value="${param.value}"
+                        step="${param.step}"
+                        ${param.min !== undefined ? `min="${param.min}"` : ''}
+                        ${param.max !== undefined ? `max="${param.max}"` : ''}
+                        required
+                    />
+                </div>
+            `).join('');
+
+            document.getElementById('parameters').innerHTML = `
+                ${parametersHtml}
+                <div class="form-group">
+                    <label for="n">Nombre de simulations :</label>
+                    <input type="number" id="n" value="10000" min="100" max="100000" required />
+                </div>
+            `;
+        }
+
+        async function handleSimulation() {
+            const button = document.getElementById('simulateBtn');
+            const loading = document.getElementById('loading');
+            const errorMessage = document.getElementById('errorMessage');
+
+            try {
+                button.disabled = true;
+                loading.style.display = 'block';
+                errorMessage.style.display = 'none';
+
+                const law = document.getElementById('loi').value;
+                const params = new URLSearchParams();
+
+                parameterConfig[law].forEach(param => {
+                    const value = document.getElementById(param.id).value;
+                    params.append(param.id, value);
+                });
+
+                params.append('n', document.getElementById('n').value);
+
+                const response = await fetch(`/api/Simulation/loi-${law.toLowerCase()}?${params}`);
+                if (!response.ok) throw new Error('Erreur serveur');
+
+                const data = await response.json();
+                updateResults(data);
+                createChart(data, law);
+            } catch (error) {
+                errorMessage.textContent = 'Une erreur est survenue lors de la simulation.';
+                errorMessage.style.display = 'block';
+                console.error(error);
+            } finally {
+                button.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+
+        function updateResults(data) {
+            const resultsList = document.getElementById('resultsList');
+            resultsList.innerHTML = data
+                .slice(0, 20)
+                .map(value => `<div class="result-item">${value.toFixed(4)}</div>`)
+                .join('');
+        }
+
+        function calculateFrequencies(data, law) {
+            const handler = distributionHandlers[law] || distributionHandlers.default;
+            const processedData = handler(data);
+
+            const nbBins = Math.ceil(Math.sqrt(processedData.length));
+            const min = Math.min(...processedData);
+            const max = Math.max(...processedData);
+            const binWidth = (max - min) / nbBins;
+
+            const bins = new Array(nbBins).fill(0);
+            const binRanges = new Array(nbBins).fill(0).map((_, i) => min + i * binWidth);
+
+            processedData.forEach(value => {
+                const binIndex = Math.min(
+                    Math.floor((value - min) / binWidth),
+                    nbBins - 1
+                );
+                bins[binIndex]++;
+            });
+
+            return binRanges.map((x, i) => ({
+                x,
+                y: bins[i] / (processedData.length * binWidth)
+            }));
+        }
+
+        function createChart(data, law) {
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            const frequencies = calculateFrequencies(data, law);
+            const ctx = document.getElementById('simulationChart').getContext('2d');
+
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: frequencies.map(f => f.x.toFixed(2)),
+                    datasets: [{
+                        label: 'Distribution des fréquences',
+                        data: frequencies.map(f => f.y),
+                        backgroundColor: '#EAE7DC',
+                        borderColor: '#2A3132',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        zoom: {
+                            zoom: {
+                                wheel: { enabled: true },
+                                pinch: { enabled: true },
+                                mode: 'xy'
+                            },
+                            pan: { enabled: true }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Densité: ${context.parsed.y.toFixed(4)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Valeurs',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            ticks: {
+                                maxRotation: 45,
+                                minRotation: 45,
+                                autoSkip: true,
+                                maxTicksLimit: 20
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Densité',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', handleLawChange);
+    </script>
+</body>
+</html>

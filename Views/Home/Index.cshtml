@@ -1,0 +1,318 @@
+﻿<style>
+    :root {
+        --primary: #4f46e5;
+        --secondary: #7c3aed;
+        --accent: #06b6d4;
+        --background: #fafafa;
+        --card-bg: #ffffff;
+        --text: #0f172a;
+        --gradient: linear-gradient(135deg, #E43D12 0%, #D6536D 50%, #5D001E 100%);
+    }
+
+    body {
+        font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+        background-color: #EAE7DC;
+        background-image: #EAE7DC;
+        margin: 0;
+        min-height: 100vh;
+        color: var(--text);
+    }
+
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    /* Header Section */
+    .text-center {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+
+    h1.display-4 {
+        font-size: 4rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        background: var(--gradient);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        position: relative;
+        display: inline-block;
+        padding: 0.5rem 0;
+    }
+
+    .lead {
+        font-size: 1.25rem;
+        color: #64748b;
+        max-width: 800px;
+        margin: 0 auto;
+        line-height: 1.8;
+    }
+
+    /* Correction de la grille des cartes */
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        margin: -1rem;
+    }
+
+    .col-md-3 {
+        width: calc(25% - 2rem);
+        margin: 1rem;
+        min-width: 280px;
+        flex-grow: 1;
+    }
+
+    /* Style des cartes */
+    .card {
+        height: 100%;
+        width: 110%;
+        background: var(--card-bg);
+        border-radius: 24px;
+        overflow: hidden;
+        position: relative;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
+    }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: var(--gradient);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 0;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+        }
+
+            .card:hover::before {
+                opacity: 0.05;
+            }
+
+    .card-body {
+        padding: 2rem;
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--text);
+    }
+
+    .card-text {
+        color: #64748b;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+        flex-grow: 1;
+    }
+
+    /* Boutons */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        border: none;
+        cursor: pointer;
+        margin-top: auto;
+    }
+
+    .btn-custom-primary,
+    .btn-custom-success,
+    .btn-custom-warning,
+    .btn-custom-info {
+        background: var(--gradient);
+        color: white;
+        box-shadow: 0 4px 15px rgba(79, 70, 229, 0.2);
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(79, 70, 229, 0.3);
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 1200px) {
+        .col-md-3
+
+    {
+        width: calc(33.333% - 2rem);
+    }
+
+    }
+
+    @@media (max-width: 992px) {
+        .col-md-3
+
+    {
+        width: calc(50% - 2rem);
+    }
+
+    }
+
+    @@media (max-width: 768px) {
+        .container
+
+    {
+        padding: 1rem;
+    }
+
+    h1.display-4 {
+        font-size: 2.5rem;
+    }
+
+    .col-md-3 {
+        width: 100%;
+        margin: 0.5rem 1rem;
+    }
+
+    .card {
+        margin-bottom: 1rem;
+    }
+
+    }
+
+    /* Animation des éléments */
+    .card-title {
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover .card-title {
+        transform: translateY(-2px);
+    }
+
+    /* Effet de brillance */
+    .card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background: linear-gradient( to right, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0) 100% );
+        transform: translateX(-100%);
+        transition: transform 0.6s ease-in-out;
+        pointer-events: none;
+    }
+
+    .card:hover::after {
+        transform: translateX(100%);
+    }
+   
+</style>
+<div class="container my-5">
+    <!-- Titre principal avec animation -->
+    <div class="text-center">
+        <h1 class="display-4">
+            <span class="light-sweep">
+                Bienvenue sur Monte Carlo Simulation
+            </span>
+        </h1>
+        <p class="lead">Explorez les outils interactifs pour simuler les lois usuelles, le mouvement brownien, les marches aléatoires, et les chaînes de Markov.</p>
+    </div>
+
+    <!-- Affichage de l'image -->
+    <div style="text-align: center;">
+        <img src="@Url.Content("~/images/image.png")" alt="Description de l'image" width="400">
+    </div>
+
+
+    <!-- Section avec les cartes -->
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">📚 Documentation</h5>
+                    <p class="card-text">Accédez à la documentation détaillée sur les simulations de Monte Carlo.</p>
+                    <a href="@Url.Action("Documentation", "Home")" class="btn btn-custom-primary"> Voir la Documentation</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">📊 Simulation des Lois</h5>
+                    <p class="card-text">Simulez des lois usuelles telles que la loi normale, uniforme, etc.</p>
+                    <a href="@Url.Action("SimulationDesLois", "Home")" class="btn btn-custom-success">Simuler des Lois</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">🌀 Mouvement Brownien </h5>
+                    <p class="card-text">Visualisez et explorez la simulation du mouvement brownien.</p>
+                    <a href="@Url.Action("BrownianMotion", "Home")" class="btn btn-custom-info">Mouvement Brownien</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Mouvement Brownien Géométrique</h5>
+                    <p class="card-text">Visualisez et explorez la simulation du mouvement brownien géométrique.</p>
+                    <a href="@Url.Action("GeometricBrownianMotion", "Home")" class="btn btn-custom-info">GeometricBrownianMotion</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">⛓ Chaînes de Markov</h5>
+                    <p class="card-text">Simulez des chaînes de Markov et analysez leur évolution.</p>
+                    <a href="@Url.Action("MarkovChain", "Home")" class="btn btn-custom-warning"> Chaînes de Markov</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">🗺 Marche Aléatoire 2D</h5>
+                    <p class="card-text">Visualisez et explorez la simulation du la Marche Aléatoire 2D.</p>
+                    <a href="@Url.Action("MarchesAléatoires", "Home")" class="btn btn-custom-info">Marche Aléatoire </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">🎯 Processus de Poisson</h5>
+                    <p class="card-text">Simulation de processus temporels stochastiques.</p>
+                    <a href="@Url.Action("Processus de Poisson", "Home")" class="btn btn-custom-info">Processus de Poisson </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title"> 🎲 Pricing des Options Européennes </h5>
+                    <p class="card-text">Évaluation d'options financières par méthodes Monte Carlo.</p>
+                    <a href="@Url.Action("PricingOptions", "Home")" class="btn btn-custom-info">Pricing des Options </a>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
