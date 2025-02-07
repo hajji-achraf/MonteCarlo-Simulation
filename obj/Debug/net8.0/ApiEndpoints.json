@@ -1,0 +1,220 @@
+[
+  {
+    "ContainingType": "MonteCarlo_Simulation.Controllers.BrownianMotionController",
+    "Method": "Simuler",
+    "RelativePath": "api/BrownianMotion/Simuler",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "drift",
+        "Type": "System.Double",
+        "IsRequired": false
+      },
+      {
+        "Name": "volatility",
+        "Type": "System.Double",
+        "IsRequired": false
+      },
+      {
+        "Name": "simulations",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "steps",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "deltaT",
+        "Type": "System.Double",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MonteCarlo_Simulation.Controllers.GeometricBrownianMotionController",
+    "Method": "Simuler",
+    "RelativePath": "api/GeometricBrownianMotion/Simuler",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "drift",
+        "Type": "System.Double",
+        "IsRequired": false
+      },
+      {
+        "Name": "volatility",
+        "Type": "System.Double",
+        "IsRequired": false
+      },
+      {
+        "Name": "simulations",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "steps",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "deltaT",
+        "Type": "System.Double",
+        "IsRequired": false
+      },
+      {
+        "Name": "initialPrice",
+        "Type": "System.Double",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MonteCarlo_Simulation.Controllers.OptionsController",
+    "Method": "Calculate",
+    "RelativePath": "api/Options/Calculate",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "options",
+        "Type": "MonteCarlo_Simulation.Models.PricingOptions",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "MonteCarlo_Simulation.Controllers.OptionResult",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "MonteCarlo_Simulation.Controllers.SimulationController",
+    "Method": "GetLoiBernoulli",
+    "RelativePath": "api/Simulation/loi-bernoulli",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "p",
+        "Type": "System.Double",
+        "IsRequired": false
+      },
+      {
+        "Name": "n",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MonteCarlo_Simulation.Controllers.SimulationController",
+    "Method": "GetLoiCauchy",
+    "RelativePath": "api/Simulation/loi-cauchy",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "c",
+        "Type": "System.Double",
+        "IsRequired": false
+      },
+      {
+        "Name": "n",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MonteCarlo_Simulation.Controllers.SimulationController",
+    "Method": "GetLoiExponentielle",
+    "RelativePath": "api/Simulation/loi-exponentielle",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "lambda",
+        "Type": "System.Double",
+        "IsRequired": false
+      },
+      {
+        "Name": "n",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MonteCarlo_Simulation.Controllers.SimulationController",
+    "Method": "GetLoiNormale",
+    "RelativePath": "api/Simulation/loi-normale",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "mu",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "sigma",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "n",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "MonteCarlo_Simulation.Controllers.SimulationController",
+    "Method": "GetLoiUniforme",
+    "RelativePath": "api/Simulation/loi-uniforme",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "a",
+        "Type": "System.Double",
+        "IsRequired": false
+      },
+      {
+        "Name": "b",
+        "Type": "System.Double",
+        "IsRequired": false
+      },
+      {
+        "Name": "n",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  }
+]

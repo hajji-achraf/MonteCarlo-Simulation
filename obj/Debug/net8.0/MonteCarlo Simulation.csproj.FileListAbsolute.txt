@@ -1,0 +1,32 @@
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\bin\Debug\net8.0\appsettings.Development.json
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\bin\Debug\net8.0\appsettings.json
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\bin\Debug\net8.0\MonteCarlo Simulation.staticwebassets.runtime.json
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\bin\Debug\net8.0\MonteCarlo Simulation.staticwebassets.endpoints.json
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\bin\Debug\net8.0\MonteCarlo Simulation.exe
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\bin\Debug\net8.0\MonteCarlo Simulation.deps.json
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\bin\Debug\net8.0\MonteCarlo Simulation.runtimeconfig.json
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\bin\Debug\net8.0\MonteCarlo Simulation.dll
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\bin\Debug\net8.0\MonteCarlo Simulation.pdb
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\obj\Debug\net8.0\MonteCarlo Simulation.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\obj\Debug\net8.0\MonteCarlo Simulation.AssemblyInfoInputs.cache
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\obj\Debug\net8.0\MonteCarlo Simulation.AssemblyInfo.cs
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\obj\Debug\net8.0\MonteCarlo Simulation.csproj.CoreCompileInputs.cache
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\obj\Debug\net8.0\MonteCarlo Simulation.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\obj\Debug\net8.0\MonteCarlo Simulation.RazorAssemblyInfo.cache
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\obj\Debug\net8.0\MonteCarlo Simulation.RazorAssemblyInfo.cs
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\obj\Debug\net8.0\scopedcss\bundle\MonteCarlo Simulation.styles.css
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\obj\Debug\net8.0\staticwebassets.build.json
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\obj\Debug\net8.0\staticwebassets.development.json
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\obj\Debug\net8.0\staticwebassets.build.endpoints.json
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\obj\Debug\net8.0\staticwebassets\msbuild.MonteCarlo Simulation.Microsoft.AspNetCore.StaticWebAssets.props
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\obj\Debug\net8.0\staticwebassets\msbuild.MonteCarlo Simulation.Microsoft.AspNetCore.StaticWebAssetEndpoints.props
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\obj\Debug\net8.0\staticwebassets\msbuild.build.MonteCarlo Simulation.props
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.MonteCarlo Simulation.props
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.MonteCarlo Simulation.props
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\obj\Debug\net8.0\staticwebassets.pack.json
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\obj\Debug\net8.0\MonteCarlo Simulation.dll
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\obj\Debug\net8.0\refint\MonteCarlo Simulation.dll
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\obj\Debug\net8.0\MonteCarlo Simulation.pdb
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\obj\Debug\net8.0\MonteCarlo Simulation.genruntimeconfig.cache
+C:\Users\LENOVO\source\repos\MonteCarlo Simulation\obj\Debug\net8.0\ref\MonteCarlo Simulation.dll
